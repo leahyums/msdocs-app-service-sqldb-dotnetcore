@@ -15,6 +15,12 @@ if(builder.Environment.IsDevelopment())
 
     if (Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID") != null)
     {
+        var connectionString = builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING");
+        if (string.IsNullOrEmpty(connectionString))
+        {
+            throw new InvalidOperationException("The connection string 'AZURE_SQL_CONNECTIONSTRING' is not configured.");
+        }
+
         Console.WriteLine("// Running in Azure App Service, use managed identity");
         var azureSqlConnection = new SqlConnection(builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING"));
         azureSqlConnection.AccessToken = new DefaultAzureCredential().GetToken(
@@ -25,7 +31,6 @@ if(builder.Environment.IsDevelopment())
     else
     {
         Console.WriteLine("// Not running in Azure App Service, use connection string without managed identity");
-        // Not running in Azure App Service, use connection string without managed identity
         builder.Services.AddDbContext<MyDatabaseContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("MyDbConnection")));
         builder.Services.AddDistributedMemoryCache();
