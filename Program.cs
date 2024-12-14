@@ -15,8 +15,7 @@ if(builder.Environment.IsDevelopment())
 
     if (Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID") != null)
     {
-        /
-         Console.WriteLine("// Running in Azure App Service, use managed identity");
+        Console.WriteLine("// Running in Azure App Service, use managed identity");
         var azureSqlConnection = new SqlConnection(builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING"));
         azureSqlConnection.AccessToken = new DefaultAzureCredential().GetToken(
             new Azure.Core.TokenRequestContext(new[] { "https://database.windows.net/.default" })).Token;
