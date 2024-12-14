@@ -13,11 +13,10 @@ if(builder.Environment.IsDevelopment())
     //     options.UseSqlServer(builder.Configuration.GetConnectionString("MyDbConnection")));
     // builder.Services.AddDistributedMemoryCache();
 
-
-
     if (Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID") != null)
     {
-        // Running in Azure App Service, use managed identity
+        /
+         Console.WriteLine("// Running in Azure App Service, use managed identity");
         var azureSqlConnection = new SqlConnection(builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING"));
         azureSqlConnection.AccessToken = new DefaultAzureCredential().GetToken(
             new Azure.Core.TokenRequestContext(new[] { "https://database.windows.net/.default" })).Token;
@@ -26,15 +25,17 @@ if(builder.Environment.IsDevelopment())
     }
     else
     {
+        Console.WriteLine("// Not running in Azure App Service, use connection string without managed identity");
         // Not running in Azure App Service, use connection string without managed identity
         builder.Services.AddDbContext<MyDatabaseContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING")));
+            options.UseSqlServer(builder.Configuration.GetConnectionString("MyDbConnection")));
+        builder.Services.AddDistributedMemoryCache();
     }
-
 
     // debugging
     Console.WriteLine("AZURE_SQL_CONNECTIONSTRING: " + builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING"));
-    
+    // WEBSITE_INSTANCE_ID
+    Console.WriteLine("WEBSITE_INSTANCE_ID: " + Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID"));
 
 
     // builder.Services.AddDbContext<MyDatabaseContext>(options =>
