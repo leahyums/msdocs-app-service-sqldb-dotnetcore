@@ -5,9 +5,18 @@ var builder = WebApplication.CreateBuilder(args);
 // Add database context and cache
 if(builder.Environment.IsDevelopment())
 {
+    // use same prod setup for local dev since it's for testing on always encrypted which need to connect Azure Key Vault either way...
+    // builder.Services.AddDbContext<MyDatabaseContext>(options =>
+    //     options.UseSqlServer(builder.Configuration.GetConnectionString("MyDbConnection")));
+    // builder.Services.AddDistributedMemoryCache();
+
     builder.Services.AddDbContext<MyDatabaseContext>(options =>
-        options.UseSqlServer(builder.Configuration.GetConnectionString("MyDbConnection")));
-    builder.Services.AddDistributedMemoryCache();
+        options.UseSqlServer(builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING") + ";Column Encryption Setting=Enabled"));
+    builder.Services.AddStackExchangeRedisCache(options =>
+    {
+    options.Configuration = builder.Configuration["AZURE_REDIS_CONNECTIONSTRING"];
+    options.InstanceName = "SampleInstance";
+    });
 }
 else
 {
